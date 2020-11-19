@@ -34,17 +34,18 @@ class ContactController extends AbstractController
      */
     public function post(Request $request, ContactServiceInterface $contactService, FormFactoryInterface $formFactory): Response
     {
+
         $contact = new Contact();
         $form = $formFactory->create(ContactType::class, $contact);
         $form->submit($request->request->all());
 
-        if ($form->isValid()) {
-           $contactService->addContact($contact);
+        if (!$form->isValid()) {
+            return new Response('Invalid form', 404);
         }
 
-        return $this->render('contact/index.html.twig', [
-            'form' => $form->createView(),
-        ]);
+        $contactService->addContact($contact);
+
+        return new Response('Adding contact successful');
     }
 
     /**
@@ -53,6 +54,6 @@ class ContactController extends AbstractController
     public function track(Contact $contact, TrackServiceInterface $trackService): Response
     {
         $trackService->track($contact);
-        return $this->render('contact/index.html.twig', []);
+        return new Response('Tracked successful');
     }
 }
